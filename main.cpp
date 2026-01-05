@@ -448,28 +448,29 @@ int main(int argc, const char* argv[]){
         unsigned max_clu = stoi(argv[6]);
         unsigned step = stoi(argv[7]);
 
-        string data_path = "/home/qrstu/yty/dataset/color/color_32.txt";
+        string data_path = "./datasets_processed/cophir/cophir.txt";
         for(unsigned i = min_clu; i < max_clu + 1; i += step){
             // cout << "k is : " << i << endl;
 
-            // pnum = i;
+            pnum = i;
             readm(data_path, dim, 0);
             int num_alldata = num;
             cout << num_alldata << endl;
-            // for(int k=0;k<=num;k++)fgg[k]=0;
-            // work(dim);
+            for(int k=0;k<=num;k++)fgg[k]=0;
+            work(dim);
 
-            string clu_data_path = "/home/qrstu/yty/LIMS/outputFiles/K_" + to_string(i);
-            // int isCreate = mkdir(clu_data_path.c_str(),S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
-            // if( !isCreate )
-            //     cout << "create path success : " << clu_data_path << endl;
-            // else{
-            //     cout << "create path failed ! error code :  " << isCreate << clu_data_path <<endl;
-            //     return 0;
-            // }
+            string clu_data_path = "./outputFiles/K_" + to_string(i);
+            // Check if directory exists, if not create it
+            struct stat st = {0};
+            if (stat("./outputFiles", &st) == -1) {
+                mkdir("./outputFiles", 0700);
+            }
+            if (stat(clu_data_path.c_str(), &st) == -1) {
+                 mkdir(clu_data_path.c_str(), 0700);
+            }
 
-            // op(clu_data_path+"/ref.txt",dim);
-            // clu(dim, clu_data_path);
+            op(clu_data_path+"/ref.txt",dim);
+            clu(dim, clu_data_path);
 
 
             pnum = num_ref-1;
@@ -569,7 +570,7 @@ int main(int argc, const char* argv[]){
     pivots.reserve(num_clu);
     vector<vector<Point> > oth_pivots;
     oth_pivots.reserve(num_clu);
-    string filename = "/home/qrstu/yty/LIMS/inputFiles/ref/ref.txt";
+    string filename = "./inputFiles/ref.txt";
     ifstream fin;
     fin.open(filename);
     if(!fin){
@@ -594,7 +595,7 @@ int main(int argc, const char* argv[]){
 
 
     for(unsigned p = 0; p < num_clu; ++p){
-        string filename = "/home/qrstu/yty/LIMS/inputFiles/ref/ref_" + to_string(p) +".txt";
+        string filename = "./inputFiles/ref_" + to_string(p) +".txt";
         ifstream fin;
         fin.open(filename);
         if(!fin){
@@ -632,7 +633,7 @@ int main(int argc, const char* argv[]){
 
     double build_time = 0.0;
     for(unsigned i = 0; i < num_clu; i++){
-        InputReader inputReader("/home/qrstu/yty/LIMS/inputFiles/clu/8d_" + to_string(i) + ".txt");
+        InputReader inputReader("./inputFiles/clu_" + to_string(i) + ".txt");
         all_data.push_back(inputReader.getCluster());
 
         if(all_data[i].clu_point.empty()){
@@ -662,13 +663,20 @@ int main(int argc, const char* argv[]){
 
     cout << "build time is : " << build_time << endl;
 
+    // Save build time for benchmark tool
+    ofstream buildInfo("./data/lims_build_info.txt");
+    if (buildInfo.is_open()) {
+        buildInfo << build_time;
+        buildInfo.close();
+    } else {
+    }
 
 
     unsigned K = 5;
     double time = 0.0;
     int page = 0;
 
-    filename = "/home/qrstu/yty/LIMS/inputFiles/KNN.txt";
+    filename = "./inputFiles/KNN.txt";
     vector<Point> list_KNN = LoadPointForQuery(filename);
     
     for(unsigned m = 0; m < list_KNN.size(); ++m){
@@ -847,7 +855,7 @@ int main(int argc, const char* argv[]){
 
 
     // range query
-    string rangeQuery_filename = "/home/qrstu/yty/LIMS/inputFiles/range_0.2.txt";
+    string rangeQuery_filename = "./inputFiles/range.txt";
     vector<Point> list_rangeQry = LoadPointForQuery(rangeQuery_filename);
     double r = 0.2;
     time = 0.0;

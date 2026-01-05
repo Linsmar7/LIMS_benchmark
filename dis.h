@@ -57,13 +57,16 @@ void readm(string filename, int dim, int type){ //re-read the file
 	ain1.open(filename, ifstream::in);	
 	// ain1>>dim>>num>>ptype;
 
-	num = 2000000;
+	// num = 2000000;
 	ptype = 2;
 	//cout<<dim<<" "<<num<<" "<<ptype<<endl; // dim = 20 num = 1000 dist_metric = L0
 	//PairA=num/100; 
 	PairA = 100000; // 10000对于dynamic太慢了
 	//num=100000;
-	for(int i=0;i<num;i++)loc[i]=new float[dim+3];
+    int max_cap = 2000000;
+	if (loc[0] == NULL) {
+	    for(int i=0;i<max_cap;i++)loc[i]=new float[dim+3];
+    }
 
 
 	string line;

@@ -24,7 +24,7 @@ def gen_imagedata():
     for k in range(1,11):
 
         # change filepath to your image file folder
-        X = load_databatch("E:\\dataset_LIMS\\Imagenet32_train", k)
+        X = load_databatch("./datasets/Imagenet32_train", k)
         lenth = len(X[0])
         for i in range(len(X)):
             hist, bins = np.histogram(X[i], bins=32)
@@ -39,13 +39,13 @@ def gen_imagedata():
     print(X_scaled.shape)
 
     # change output file path to your path
-    np.savetxt('E:\\dataset_LIMS\\Imagenet32_train\\color_32.txt',X_scaled,fmt="%.5f",delimiter=',', newline='\n', header='', footer='')
-    np.save('E:\\dataset_LIMS\\Imagenet32_train\\color_32.npy',X_scaled)
+    np.savetxt('./datasets_processed/Imagenet32_train/color_32.txt',X_scaled,fmt="%.5f",delimiter=',', newline='\n', header='', footer='')
+    np.save('./datasets_processed/Imagenet32_train/color_32.npy',X_scaled)
 
 
 def gen_forestdata():
     # change input file path to your forest cover type data storage path
-    df = pd.read_csv("E:\\dataset_LISHD\\forest\\test.csv", error_bad_lines=False)
+    df = pd.read_csv("./datasets/forest_cover_type/test.csv")
     print(df.head())
     print(df.shape)
     print(df.isna().sum())
@@ -88,9 +88,44 @@ def gen_forestdata():
         data[:, i] = data[:, i] + noise[:, 0]
 
     # change output file path to your path
-    np.savetxt('E:\\dataset_LISHD\\forest\\forest.txt',data,fmt="%.8f",delimiter=',', newline='\n', header='', footer='')
-    np.save('E:\\dataset_LISHD\\forest\\forest.npy',data)
+    np.savetxt('./datasets_processed/forest_cover_type/forest.txt',data,fmt="%.8f",delimiter=',', newline='\n', header='', footer='')
+    np.save('./datasets_processed/forest_cover_type/forest.npy',data)
+
+def gen_cophirdata():
+    # change input file path to your cophir data storage path
+    input_path = "./datasets/cophir/CoPhIR100k-descriptors.csv"
+    if not os.path.exists(input_path):
+        print(f"File not found: {input_path}")
+        return
+
+    # Read CSV. It has no header.
+    df = pd.read_csv(input_path, header=None)
+    
+    print("Original shape:", df.shape)
+    
+    df = df.dropna(axis=1)
+    print("Shape after dropping NaN cols:", df.shape)
+    
+    if df.shape[1] != 282:
+        print(f"Warning: Expected 282 dimensions, got {df.shape[1]}")
+    else:
+        print("Confirmed 282 dimensions.")
+    
+    data = df.values.astype(float)
+
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X_scaled = min_max_scaler.fit_transform(data) 
+    print("Scaled data shape:", X_scaled.shape)
+
+    # change output file path to your path
+    output_dir = './datasets_processed/cophir'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    np.savetxt(os.path.join(output_dir, 'cophir.txt'), X_scaled, fmt="%.8f", delimiter=',', newline='\n', header='', footer='')
+    np.save(os.path.join(output_dir, 'cophir.npy'), X_scaled)
 
 if __name__ == '__main__':
-    gen_imagedata()
-    gen_forestdata()
+    # gen_imagedata()
+    # gen_forestdata()
+    gen_cophirdata()
